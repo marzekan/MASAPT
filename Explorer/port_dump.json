@@ -1,0 +1,294 @@
+{
+    "127.0.0.1": {
+        "osmatch": {},
+        "ports": [
+            {
+                "protocol": "tcp",
+                "portid": "21",
+                "state": "closed",
+                "reason": "conn-refused",
+                "reason_ttl": "0",
+                "service": {
+                    "name": "ftp",
+                    "method": "table",
+                    "conf": "3"
+                },
+                "scripts": []
+            },
+            {
+                "protocol": "tcp",
+                "portid": "22",
+                "state": "closed",
+                "reason": "conn-refused",
+                "reason_ttl": "0",
+                "service": {
+                    "name": "ssh",
+                    "method": "table",
+                    "conf": "3"
+                },
+                "scripts": []
+            },
+            {
+                "protocol": "tcp",
+                "portid": "23",
+                "state": "closed",
+                "reason": "conn-refused",
+                "reason_ttl": "0",
+                "service": {
+                    "name": "telnet",
+                    "method": "table",
+                    "conf": "3"
+                },
+                "scripts": []
+            },
+            {
+                "protocol": "tcp",
+                "portid": "25",
+                "state": "closed",
+                "reason": "conn-refused",
+                "reason_ttl": "0",
+                "service": {
+                    "name": "smtp",
+                    "method": "table",
+                    "conf": "3"
+                },
+                "scripts": []
+            },
+            {
+                "protocol": "tcp",
+                "portid": "53",
+                "state": "closed",
+                "reason": "conn-refused",
+                "reason_ttl": "0",
+                "service": {
+                    "name": "domain",
+                    "method": "table",
+                    "conf": "3"
+                },
+                "scripts": []
+            },
+            {
+                "protocol": "tcp",
+                "portid": "80",
+                "state": "closed",
+                "reason": "conn-refused",
+                "reason_ttl": "0",
+                "service": {
+                    "name": "http",
+                    "method": "table",
+                    "conf": "3"
+                },
+                "scripts": []
+            },
+            {
+                "protocol": "tcp",
+                "portid": "110",
+                "state": "closed",
+                "reason": "conn-refused",
+                "reason_ttl": "0",
+                "service": {
+                    "name": "pop3",
+                    "method": "table",
+                    "conf": "3"
+                },
+                "scripts": []
+            },
+            {
+                "protocol": "tcp",
+                "portid": "111",
+                "state": "closed",
+                "reason": "conn-refused",
+                "reason_ttl": "0",
+                "service": {
+                    "name": "rpcbind",
+                    "method": "table",
+                    "conf": "3"
+                },
+                "scripts": []
+            },
+            {
+                "protocol": "tcp",
+                "portid": "135",
+                "state": "closed",
+                "reason": "conn-refused",
+                "reason_ttl": "0",
+                "service": {
+                    "name": "msrpc",
+                    "method": "table",
+                    "conf": "3"
+                },
+                "scripts": []
+            },
+            {
+                "protocol": "tcp",
+                "portid": "139",
+                "state": "closed",
+                "reason": "conn-refused",
+                "reason_ttl": "0",
+                "service": {
+                    "name": "netbios-ssn",
+                    "method": "table",
+                    "conf": "3"
+                },
+                "scripts": []
+            },
+            {
+                "protocol": "tcp",
+                "portid": "143",
+                "state": "closed",
+                "reason": "conn-refused",
+                "reason_ttl": "0",
+                "service": {
+                    "name": "imap",
+                    "method": "table",
+                    "conf": "3"
+                },
+                "scripts": []
+            },
+            {
+                "protocol": "tcp",
+                "portid": "443",
+                "state": "closed",
+                "reason": "conn-refused",
+                "reason_ttl": "0",
+                "service": {
+                    "name": "https",
+                    "method": "table",
+                    "conf": "3"
+                },
+                "scripts": []
+            },
+            {
+                "protocol": "tcp",
+                "portid": "445",
+                "state": "closed",
+                "reason": "conn-refused",
+                "reason_ttl": "0",
+                "service": {
+                    "name": "microsoft-ds",
+                    "method": "table",
+                    "conf": "3"
+                },
+                "scripts": []
+            },
+            {
+                "protocol": "tcp",
+                "portid": "993",
+                "state": "closed",
+                "reason": "conn-refused",
+                "reason_ttl": "0",
+                "service": {
+                    "name": "imaps",
+                    "method": "table",
+                    "conf": "3"
+                },
+                "scripts": []
+            },
+            {
+                "protocol": "tcp",
+                "portid": "995",
+                "state": "closed",
+                "reason": "conn-refused",
+                "reason_ttl": "0",
+                "service": {
+                    "name": "pop3s",
+                    "method": "table",
+                    "conf": "3"
+                },
+                "scripts": []
+            },
+            {
+                "protocol": "tcp",
+                "portid": "1723",
+                "state": "closed",
+                "reason": "conn-refused",
+                "reason_ttl": "0",
+                "service": {
+                    "name": "pptp",
+                    "method": "table",
+                    "conf": "3"
+                },
+                "scripts": []
+            },
+            {
+                "protocol": "tcp",
+                "portid": "3306",
+                "state": "closed",
+                "reason": "conn-refused",
+                "reason_ttl": "0",
+                "service": {
+                    "name": "mysql",
+                    "method": "table",
+                    "conf": "3"
+                },
+                "scripts": []
+            },
+            {
+                "protocol": "tcp",
+                "portid": "3389",
+                "state": "closed",
+                "reason": "conn-refused",
+                "reason_ttl": "0",
+                "service": {
+                    "name": "ms-wbt-server",
+                    "method": "table",
+                    "conf": "3"
+                },
+                "scripts": []
+            },
+            {
+                "protocol": "tcp",
+                "portid": "5900",
+                "state": "closed",
+                "reason": "conn-refused",
+                "reason_ttl": "0",
+                "service": {
+                    "name": "vnc",
+                    "method": "table",
+                    "conf": "3"
+                },
+                "scripts": []
+            },
+            {
+                "protocol": "tcp",
+                "portid": "8080",
+                "state": "closed",
+                "reason": "conn-refused",
+                "reason_ttl": "0",
+                "service": {
+                    "name": "http-proxy",
+                    "method": "table",
+                    "conf": "3"
+                },
+                "scripts": []
+            }
+        ],
+        "hostname": [
+            {
+                "name": "localhost",
+                "type": "PTR"
+            }
+        ],
+        "macaddress": null,
+        "state": {
+            "state": "up",
+            "reason": "conn-refused",
+            "reason_ttl": "0"
+        }
+    },
+    "stats": {
+        "scanner": "nmap",
+        "args": "/usr/bin/nmap -oX - --top-ports 20 127.0.0.1",
+        "start": "1611836299",
+        "startstr": "Thu Jan 28 07:18:19 2021",
+        "version": "7.91",
+        "xmloutputversion": "1.05"
+    },
+    "runtime": {
+        "time": "1611836299",
+        "timestr": "Thu Jan 28 07:18:19 2021",
+        "summary": "Nmap done at Thu Jan 28 07:18:19 2021; 1 IP address (1 host up) scanned in 0.09 seconds",
+        "elapsed": "0.09",
+        "exit": "success"
+    }
+}

@@ -1,0 +1,14 @@
+[[source]]
+url = "https://pypi.org/simple"
+verify_ssl = true
+name = "pypi"
+
+[packages]
+spade = "==3.1.6"
+aiohttp = "==3.5.4"
+python-nmap = "==0.6.1"
+
+[dev-packages]
+
+[requires]
+python_version = "3.8"

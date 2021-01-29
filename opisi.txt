@@ -1,0 +1,18 @@
+
+keywords:
+
+    - finite state machine
+    - MASAPT: Multi-Agent System for Automated Penetration Testing
+    - spade
+    - ejabberd
+    - MAS
+    - PenTesting
+
+
+
+tech:
+
+    ejabberd xmpp service
+
+    python:
+        spade
