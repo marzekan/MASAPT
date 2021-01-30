@@ -7,6 +7,7 @@ from spade.behaviour import FSMBehaviour, State
 from spade.message import Message
 from spade.template import Template
 
+from explorer_utils import run_osint
 
 
 class Explorer(Agent):
@@ -38,13 +39,13 @@ class Explorer(Agent):
 
                 self.agent.recived_msg = msg
                 self.agent.sender = str(msg.sender)
-                
+
                 print()
                 print("Primljenja poruka:", msg.body)
                 print()
 
                 self.set_next_state("SendResponse")
-            
+
             else:
                 self.set_next_state("AwaitMsg")
 
@@ -63,7 +64,7 @@ class Explorer(Agent):
             await self.send(msg)
 
             self.set_next_state("AwaitMsg")
-            
+
 
 
     async def setup(self):
@@ -85,8 +86,8 @@ class Explorer(Agent):
 
         self.add_behaviour(agent_behaviour, communication_template)
 
-        
-    
+
+
 
 
 if __name__ == "__main__":
@@ -94,18 +95,15 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Runs explorer agent.")
     parser.add_argument("-jid", type=str, help="Explorer agents JID for XMPP service", default="explorer@localhost")
     parser.add_argument("-pwd", type=str, help="Explorer agents password for XMPP service", default="explorerSecret")
-    
+
     args = parser.parse_args()
 
     explorer = Explorer(jid=args.jid, pwd=args.pwd)
-    
+
     explorer.start()
-    
+
 
     input("Press ENTER to exit.\n")
 
     explorer.stop()
     spade.quit_spade()
-
-
-
