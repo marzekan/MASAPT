@@ -1,0 +1,79 @@
+
+
+    +---------------------+
+    |    MASAPT REPORT    |
+    +---------------------+
+
+This document contains results of all tests that MASAPT
+has conducted.
+
+
+
+------------------------------
+
+ ~~ This section contains SQL injection exploit report ~~ 
+
+------------------------------
+
+Target: localhost/sqlilabs/Less-1/?id=
+
+DBMS Type: MySQL >= 5.0 (MariaDB fork)
+
+------------------------------
+
+Databases found: ['challenges', 'security']
+
+------------------------------
+
+Tables in databases:
+
++------------+----------+
+| challenges | security |
++------------+----------+
+| JVY2709DPX |  emails  |
+|            | referers |
+|            | uagents  |
+|            |  users   |
++------------+----------+
+
+------------------------------
+
+Table samples:
+ * Tables contain only samples (top 5 rows), not whole tables!
+
++------------+
+| JVY2709DPX |
++------------+
++------------+
+
++---------------------------+
+|           emails          |
++----+----------------------+
+| id |       email_id       |
++----+----------------------+
+| 1  |   Dumb@dhakkan.com   |
+| 2  |   Angel@iloveu.com   |
+| 3  | Dummy@dhakkan.local  |
+| 4  | secure@dhakkan.local |
++----+----------------------+
+
++----------+
+| referers |
++----------+
++----------+
+
++---------+
+| uagents |
++---------+
++---------+
+
++----------------------------+
+|           users            |
++----+------------+----------+
+| id |  password  | username |
++----+------------+----------+
+| 1  |    Dumb    |   Dumb   |
+| 2  | I-kill-you | Angelina |
+| 3  |  p@ssword  |  Dummy   |
+| 4  |   crappy   |  secure  |
++----+------------+----------+

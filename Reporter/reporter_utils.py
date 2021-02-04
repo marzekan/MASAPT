@@ -1,6 +1,5 @@
 from prettytable import PrettyTable
 from datetime import datetime
-import re
 
 section_break = "\n\n------------------------------\n\n"
 
@@ -29,40 +28,40 @@ CEND = '\33[0m'
 
 specials = [CRED, CGREEN, CYELLOW, CCYAN, CBLUE, CBOLD, CEND]
 
-sqli_test = {
-    "target": "localhost/sqlilabs/Less-1/?id=",
-    "dbms_type": "MySQL >= 5.0 (MariaDB fork)",
-    "databases": {
-        "challenges": [
-            "JVY2709DPX"
-        ],
-        "security": [
-            "emails",
-            "referers",
-            "uagents",
-            "users"
-        ]
-    },
-    "tables": {
-        "JVY2709DPX": [],
-        "emails": [
-            "| id | email_id               |",
-            "| 1  | Dumb@dhakkan.com       |",
-            "| 2  | Angel@iloveu.com       |",
-            "| 3  | Dummy@dhakkan.local    |",
-            "| 4  | secure@dhakkan.local   |"
-        ],
-        "referers": [],
-        "uagents": [],
-        "users": [
-            "| id | password   | username |",
-            "| 1  | Dumb       | Dumb     |",
-            "| 2  | I-kill-you | Angelina |",
-            "| 3  | p@ssword   | Dummy    |",
-            "| 4  | crappy     | secure   |"
-        ]
-    }
-}
+# sqli_test = {
+#     "target": "localhost/sqlilabs/Less-1/?id=",
+#     "dbms_type": "MySQL >= 5.0 (MariaDB fork)",
+#     "databases": {
+#         "challenges": [
+#             "JVY2709DPX"
+#         ],
+#         "security": [
+#             "emails",
+#             "referers",
+#             "uagents",
+#             "users"
+#         ]
+#     },
+#     "tables": {
+#         "JVY2709DPX": [],
+#         "emails": [
+#             "| id | email_id               |",
+#             "| 1  | Dumb@dhakkan.com       |",
+#             "| 2  | Angel@iloveu.com       |",
+#             "| 3  | Dummy@dhakkan.local    |",
+#             "| 4  | secure@dhakkan.local   |"
+#         ],
+#         "referers": [],
+#         "uagents": [],
+#         "users": [
+#             "| id | password   | username |",
+#             "| 1  | Dumb       | Dumb     |",
+#             "| 2  | I-kill-you | Angelina |",
+#             "| 3  | p@ssword   | Dummy    |",
+#             "| 4  | crappy     | secure   |"
+#         ]
+#     }
+# }
 
 
 
@@ -159,41 +158,11 @@ def __sqli_json_to_report(sqli_results: dict):
 # Removes all special color characters from given text.
 def __remove_special_characters(in_text: str) -> str:
 
-    # # pattern = re.compile(r"\\b(" + "|".join(specials) + ")\\W", re.I)
-    # #
-    # # return pattern.sub("", in_text)
+    # Shutup about regex.
+    for bad in specials:
+        in_text = in_text.replace(bad,"")
 
-    # bad = [re.escape(i) for i in specials]
-    #
-    # replace_wrd = ''
-    #
-    #
-    # res = re.sub(r"\\b(" + "|".join(specials) + ")\\W", replace_wrd, in_text)
-    #
-    # return str(res)
-
-    
-
-
-    # pattern = re.split()
-
-    # res = in_text.split("\n")
-    #
-    # aaa = ""
-    #
-    # for r in res:
-    #
-    #     if r in specials:
-    #
-    #         r = ""
-    #
-    # aaa = "\n".join(res)
-    #
-    # return aaa
-
-    # print(newline, nooo, newline)
-
-
+    return in_text
 
 
 
@@ -221,10 +190,10 @@ def save_report_to_txt(report):
         txt_file.close()
 
 
-if __name__ == "__main__":
-
-    report = build_report(sqli_results=sqli_test)
-
-    save_report_to_txt(report)
-
-    print(report)
+# if __name__ == "__main__":
+#
+#     report = build_report(sqli_results=sqli_test)
+#
+#     save_report_to_txt(report)
+#
+#     print(report)
