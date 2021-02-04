@@ -21,11 +21,7 @@ common_mysql_dbs = ["information_schema", "mysql", "performance_schema"]
         "target": {target}
         "DBMS_type": "MySQL",
         "databases": ["ime", "ime", ...],
-
-        "db1": ["table1", "table2", ...],
-        "db2": ["table3", "table4", ...],
-
-        "table1": []
+        "table": []
 
     }
 '''
@@ -65,19 +61,19 @@ def parse_sqlmap_dbs_output(shell_output: str):
     def find_db_names(item:str):
 
         next_item = split_output[split_output.index(item)+1]
-                
+
         if "[*]" in next_item:
             next_item_split = next_item.split(" ")
             databases.append(next_item_split[1])
-            
+
             find_db_names(next_item)
-        
+
         else:
             return databases
 
 
     for item in split_output:
-        
+
         # Find DBMS type.
         if "back-end DBMS" in item:
             dbms_type = item.split(" ")
@@ -85,14 +81,14 @@ def parse_sqlmap_dbs_output(shell_output: str):
 
         # Find DBs
         if "available databases" in item:
-            
+
             if item is not split_output[-1]:
                 find_db_names(item)
-    
+
     databases = [db_name for db_name in databases if db_name not in common_mysql_dbs]
-    
+
     return databases, dbms_type
-    
+
 # Runs shell code to find all tables in a given database.
 def run_find_tables(db_name: str):
 
@@ -124,32 +120,32 @@ def parse_sqlmap_tables_output(shell_output: str):
     def find_table_names(item:str):
 
         next_item = split_output[split_output.index(item)+1]
-                
+
         if '|' in next_item:
             next_item_split = next_item.split(" ")
             tables.append(next_item_split[1])
-            
+
             find_table_names(next_item)
-        
+
         else:
             return tables
-    
+
 
     for item in split_output:
-        
+
         # Find tables
         if '+' in item:
-            
+
             if item is not split_output[-1]:
                 find_table_names(item)
-    
+
     tables = list(set(tables))
-    
+
     return list(tables)
 
 # Runs shell code to dump table content.
 def run_table_dump(table_name:  str, db_name: str):
-    
+
     # Place shell commands in correct format for subproces.run()
     command_split = sqlmap_commands[4].split(" ")
 
@@ -166,7 +162,7 @@ def run_table_dump(table_name:  str, db_name: str):
 
 #  Retrives 5 rows of a given db table.
 def parse_sqlmap_table_dump_output(shell_output: str):
-    
+
     rows = []
     first_plus = True
 
@@ -180,18 +176,18 @@ def parse_sqlmap_table_dump_output(shell_output: str):
     for item in split_output:
 
         if '+' in item and first_plus:
-            
+
             first_plus = False
 
             for i in range(1,7):
-                
+
                 next_item = split_output[split_output.index(item)+i]
-                
+
                 if '|' == next_item[0]:
-                    
+
                     rows.append(next_item)
 
-    
+
     return list(rows)
 
 
@@ -211,9 +207,9 @@ if __name__ == '__main__':
 
     # Search all databases for all tables.
     for db in dbs:
-        
+
         sqlmap_tables_output = run_find_tables(db)
-        
+
         tables_list = parse_sqlmap_tables_output(sqlmap_tables_output.stdout)
 
         # Store found tables to report.
@@ -225,13 +221,13 @@ if __name__ == '__main__':
 
             rows_dump = parse_sqlmap_table_dump_output(sqlmap_table_dump_output.stdout)
 
-            # Store first 5 table rows to report. 
+            # Store first 5 table rows to report.
             retrived_data["tables"][table] = rows_dump
 
-        
-        
+
+
     # Dump retrived data to JSON file.
     with open('dumped.json', 'w') as file:
         json.dump(retrived_data, file, indent=4)
-    
+
     print(retrived_data)
