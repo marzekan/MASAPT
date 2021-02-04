@@ -22,6 +22,7 @@ lxml==4.6.2
 MarkupSafe==1.1.1
 multidict==4.5.2
 packaging==20.9
+prettytable==2.0.0
 pyasn1==0.4.7
 pyasn1-modules==0.2.7
 pycparser==2.20
@@ -51,4 +52,5 @@ sphinxcontrib-serializinghtml==1.1.4
 timeago==1.0.8
 tzlocal==2.1
 urllib3==1.26.3
+wcwidth==0.2.5
 yarl==1.6.3
