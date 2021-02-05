@@ -1,0 +1,83 @@
+#!/bin/bash
+
+
+# Help function that prints help details to console.
+showHelp(){
+        echo ""
+        echo "Usage: $0 -t target/url"
+        echo -e "\t-t Pass URL of the target that you want to perform the Pentest on."
+        exit 1
+}
+
+# Loop through passed parameters.
+while getopts "t:" opt
+do
+        case "$opt" in
+                t ) target_url="$OPTARG" ;;
+                ? ) showHelp ;;
+        esac
+done
+
+# Print showHelp in case parameters are empty.
+if [ -z "$target_url" ]
+then
+        echo "Some or all parameters are empty.";
+        showHelp
+fi
+
+
+# Function that runs on Keyboard Interrupt event (Ctrl + C)
+control_c() {
+
+  # Kill all MASAPT proccesses that are already running.
+  for pid in $(ps -ef | grep -E 'Explorer|Coordinator|SQLinjector|Reporter' | awk '{print $2}'); do kill -9 $pid; done
+
+  exit
+
+}
+
+# Call interrupt event function
+trap control_c SIGINT
+
+
+# -------- Setting global agent paths ------------
+
+# Places current directory into a variable.
+# current_dir=$(pwd)
+
+current_dir="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
+
+explorer_path="${current_dir}/Explorer/explorer.py"
+coordinator_path="${current_dir}/Coordinator/coordinator.py"
+sqlinjector_path="${current_dir}/SQLinjector/sqlinjector.py"
+reporter_path="${current_dir}/Reporter/reporter.py"
+
+# --------------- Run agents --------------------
+
+printf "\nStarting MASAPT...\n\n"
+printf "You can exit the program by hitting Crtl + C\n\n\n"
+
+printf "Welcome to...\n\n"
+
+printf "+---------------------------------+\n"
+printf "|       Multi-Agent System        |\n"
+printf "|              for                |\n"
+printf "|  Automated Penetration Testing  |\n"
+printf "+---------------------------------+\n"
+printf "\n\n"
+
+python $explorer_path -t $target_url &
+
+sleep 3
+
+python $coordinator_path &
+
+sleep 3
+
+python $sqlinjector_path &
+
+sleep 3
+
+python $reporter_path &
+
+wait

@@ -16,3 +16,31 @@ tech:
 
     python:
         spade
+
+
+WARNING:
+  napisat upozorenjej na poceku readme
+
+UPUTE:
+
+install kali, python3.8, pip
+
+install requirements.txt
+
+
+add directory to PATH
+
+chmod +x masapt
+
+
+
+REQUISITS:
+
+kali linux verzija XXX
+
+
+RUN:
+
+masapt -t target/url
+
+or, if that doesnt work

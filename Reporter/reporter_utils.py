@@ -1,6 +1,7 @@
 from prettytable import PrettyTable
 from datetime import datetime
 import json
+import os
 
 section_break = "\n\n------------------------------\n\n"
 
@@ -207,6 +208,9 @@ def save_report_to_txt(report):
 
     time = datetime.now().strftime("%Y_%m_%d_%H_%M_%S")
 
-    with open(f"Reporter/reports/masapt_report_{time}.txt", "w") as txt_file:
+    # Path where 'reports' file is saved on the PC.
+    rel_path = os.path.dirname(os.path.realpath(__file__))
+
+    with open(f"{rel_path}/reports/masapt_report_{time}.txt", "w") as txt_file:
         txt_file.write(report)
         txt_file.close()

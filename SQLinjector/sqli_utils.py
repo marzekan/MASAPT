@@ -215,8 +215,8 @@ def run_sql_injection(target: str) -> dict:
 
 
     # Dump retrived data to JSON file.
-    with open('dumped.json', 'w') as file:
-        json.dump(retrived_data, file, indent=4)
+    # with open('dumped.json', 'w') as file:
+    #     json.dump(retrived_data, file, indent=4)
 
     # print(retrived_data)
 
