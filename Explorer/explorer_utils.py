@@ -4,7 +4,7 @@ import subprocess
 
 
 # Runs nmap --top-ports shell command and returns its output.
-def _get_top_ports(target: str, top_port_num: int):
+def __get_top_ports(target: str, top_port_num: int):
 
     # Initialize Nmap object.
     nmap = nmap3.Nmap()
@@ -14,7 +14,7 @@ def _get_top_ports(target: str, top_port_num: int):
     return scan_result
 
 # Parse top ports shell output, return only open ports.
-def _parse_top_ports_output(target: str, shell_output: str):
+def __parse_top_ports_output(target: str, shell_output: str):
 
     info = []
 
@@ -39,13 +39,13 @@ def _parse_top_ports_output(target: str, shell_output: str):
 
 
 
-def _run_harvester():
+def __run_harvester():
 
     shell_output = subprocess.run(["theHarvester", "-d", "localhost", "-l", "10", "-b", "bing"], capture_output=True, text=True)
 
     return shell_output
 
-def _parse_harvester_output(shell_output: str):
+def __parse_harvester_output(shell_output: str):
 
     pass
 
@@ -60,8 +60,8 @@ def run_osint(target: str) -> dict:
         "open_ports":[]
     }
 
-    out = _get_top_ports(target, 100)
+    out = __get_top_ports(target, 100)
 
-    osint_data["open_ports"] = _parse_top_ports_output(target, out)
+    osint_data["open_ports"] = __parse_top_ports_output(target, out)
 
     return osint_data

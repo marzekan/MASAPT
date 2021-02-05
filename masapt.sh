@@ -7,8 +7,8 @@ ejabber_proc_num=$(ps aux | grep ejabberd -c)
 
 #pokreni python fajlove
 
-python reporter.py &
+python Reporter/reporter.py &
 
-python explorer.py &
+python Explorer/explorer.py &
 
 wait

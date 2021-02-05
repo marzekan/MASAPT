@@ -37,16 +37,18 @@ class Reporter(Agent):
                 self.agent.recived_msg = msg
                 self.agent.sender = str(msg.sender)
 
+                self.agent.log("\nDobio sam poruku\n")
+
                 print()
                 print(f"{self.agent.sender}")
                 print()
-                
+
                 print()
                 self.agent.log(f"Primljenja poruka: {msg.body}")
                 print()
 
                 self.set_next_state("SendResponse")
-            
+
             else:
                 self.set_next_state("AwaitMsg")
 
@@ -65,8 +67,8 @@ class Reporter(Agent):
             await self.send(msg)
 
             self.set_next_state("AwaitMsg")
-            
-            
+
+
 
 
     async def setup(self):
@@ -88,8 +90,8 @@ class Reporter(Agent):
 
         self.add_behaviour(agent_behaviour, communication_template)
 
-        
-    
+
+
 
 
 if __name__ == "__main__":
@@ -97,18 +99,15 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Runs reporter agent.")
     parser.add_argument("-jid", type=str, help="Reporter agents JID for XMPP service", default="reporter@localhost")
     parser.add_argument("-pwd", type=str, help="Reporter agents password for XMPP service", default="reportSecret")
-    
+
     args = parser.parse_args()
 
     reporter = Reporter(jid=args.jid, pwd=args.pwd)
-    
+
     reporter.start()
-    
+
 
     input("Press ENTER to exit.\n")
 
     reporter.stop()
     spade.quit_spade()
-
-
-
