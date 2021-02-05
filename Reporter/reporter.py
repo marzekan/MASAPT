@@ -24,7 +24,7 @@ class Reporter(Agent):
 
         self.role = "Reporter"
         self.final_report = None
-        self.target = None
+        self.recived_data_dump = None
 
         self.recived_msg: Message
         self.sender: str
@@ -64,19 +64,19 @@ class Reporter(Agent):
             else:
                 self.set_next_state("AwaitMsg")
 
-            # If agent has not recieved inform from reporter, send request to reporter for that data again.
-            if self.agent.target == None:
-                self.agent.message_to_send = "give target"
+            # If agent has not recieved data dump from sqlinjector, send request to sqlinjector for that data dump again.
+            if self.agent.recived_data_dump == None:
+                self.agent.message_to_send = "give data dump"
                 self.set_next_state("SendMsg")
 
 
     class SendMsg(State):
         async def run(self):
 
-            if self.agent.message_to_send == "give target":
+            if self.agent.message_to_send == "give data dump":
 
                 msg = Message(
-                    to="coordinator@localhost",
+                    to="sqlinjector@localhost",
                     body=f"{self.agent.message_to_send}",
                     metadata={
                         "performative":"inform",
@@ -86,16 +86,18 @@ class Reporter(Agent):
 
                 self.set_next_state("AwaitMsg")
 
-                self.agent.log("'Give target' request sent")
+                self.agent.log("'Give data dump' request sent")
+
+                time.sleep(1)
 
                 await self.send(msg)
 
                 return
 
-            elif self.agent.message_to_send == "coordinator_conf":
+            elif self.agent.message_to_send == "sqli_conf":
                 msg = Message(
-                    to="coordinator@localhost",
-                    body="sql_conf",
+                    to="sqlinjector@localhost",
+                    body="reporter_conf",
                     metadata={
                         "performative":"inform",
                         "ontology":"security",
@@ -104,32 +106,11 @@ class Reporter(Agent):
 
                 await self.send(msg)
 
-                self.agent.message_to_send = "inform_reporter"
+                self.agent.message_to_send = "end"
 
-                self.agent.log("Confirmation to Coordinator sent")
+                self.agent.log("Confirmation to SQLinjector sent")
 
-                self.set_next_state("SendMsg")
-
-                return
-
-
-            elif self.agent.message_to_send == "inform_reporter":
-
-                msg = Message(
-                    to="reporter@localhost",
-                    body=f"{self.agent.message_to_send}",
-                    metadata={
-                        "performative":"inform",
-                        "ontology":"security",
-                        "data_dump":self.agent.dumped_data
-                    }
-                )
-
-                await self.send(msg)
-
-                self.agent.log("EXPLOIT FINISHED - reporter informed")
-
-                self.set_next_state("AwaitMsg")
+                self.set_next_state("End")
 
                 return
 
@@ -139,24 +120,15 @@ class Reporter(Agent):
         async def run(self):
 
             # Check if message sender is coordinator agent
-            if self.agent.sender == "coordinator@localhost":
+            if self.agent.sender == "sqlinjector@localhost":
 
-                if self.agent.recived_msg.body == "inform_attackers" and self.agent.recived_msg.metadata["recipient"] == "sqli":
+                if self.agent.recived_msg.body == "inform_reporter":
 
-                    self.agent.log("Target data recived")
+                    self.agent.log("Data dump recived")
 
-                    self.agent.target = self.agent.recived_msg.metadata["target"]
+                    self.agent.recived_data_dump = self.agent.recived_msg.metadata["data_dump"]
 
                     self.set_next_state("PerformReporting")
-
-                    return
-
-            elif self.agent.sender == "reporter@localhost":
-
-                if self.agent.recived_msg.body == "reporter_conf":
-
-                    self.agent.log("Reporter conf recived")
-                    self.set_next_state("End")
 
                     return
 
@@ -165,11 +137,13 @@ class Reporter(Agent):
 
         async def run(self):
 
-            data_dump = run_sql_injection(self.agent.target + "/?id=")
+            final_report = build_report(sqli_results=self.agent.recived_data_dump)
 
-            self.agent.dumped_data = str(data_dump)
+            self.agent.final_report = final_report
 
-            self.agent.message_to_send = "coordinator_conf"
+            save_report_to_txt(self.agent.final_report)
+
+            self.agent.message_to_send = "sqli_conf"
 
             self.set_next_state("SendMsg")
 
@@ -211,6 +185,7 @@ class Reporter(Agent):
         agent_behaviour.add_transition(source="PerformReporting", dest="SendMsg")
         agent_behaviour.add_transition(source="SendMsg", dest="AwaitMsg")
         agent_behaviour.add_transition(source="SendMsg", dest="SendMsg")
+        agent_behaviour.add_transition(source="SendMsg", dest="End")
         agent_behaviour.add_transition(source="AwaitMsg", dest="AwaitMsg")
         agent_behaviour.add_transition(source="AwaitMsg", dest="SendMsg")
         agent_behaviour.add_transition(source="AwaitMsg", dest="InterpretMsg")

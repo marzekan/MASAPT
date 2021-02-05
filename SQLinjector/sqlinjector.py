@@ -88,6 +88,8 @@ class SQLinjector(Agent):
 
                 self.agent.log("'Give target' request sent")
 
+                time.sleep(1)
+
                 await self.send(msg)
 
                 return
@@ -160,6 +162,16 @@ class SQLinjector(Agent):
 
                     return
 
+                elif self.agent.recived_msg.body == "give data dump":
+
+                    self.agent.log("Reporter agent requests data dump")
+                    self.agent.message_to_send = "inform_reporter"
+
+                    self.set_next_state("SendMsg")
+
+                    return
+
+
 
     class PerformExploit(State):
 
@@ -215,6 +227,7 @@ class SQLinjector(Agent):
         agent_behaviour.add_transition(source="AwaitMsg", dest="SendMsg")
         agent_behaviour.add_transition(source="AwaitMsg", dest="InterpretMsg")
         agent_behaviour.add_transition(source="InterpretMsg", dest="PerformExploit")
+        agent_behaviour.add_transition(source="InterpretMsg", dest="SendMsg")
         agent_behaviour.add_transition(source="InterpretMsg", dest="End")
         agent_behaviour.add_transition(source="End", dest="End")
 

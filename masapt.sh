@@ -17,7 +17,7 @@ printf "You can kill the program by hitting Crtl + C\n\n"
 
 python Explorer/explorer.py -t localhost/sqlilabs/Less-1 &
 
-sleep 2
+sleep 3
 
 python Coordinator/coordinator.py &
 
@@ -25,7 +25,7 @@ sleep 3
 
 python SQLinjector/sqlinjector.py &
 
-sleep 5
+sleep 3
 
 python Reporter/reporter.py &
 
