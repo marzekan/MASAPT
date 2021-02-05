@@ -7,9 +7,9 @@
         ],
         "security": [
             "users",
+            "uagents",
             "emails",
-            "referers",
-            "uagents"
+            "referers"
         ]
     },
     "tables": {
@@ -21,6 +21,7 @@
             "| 3  | p@ssword   | Dummy    |",
             "| 4  | crappy     | secure   |"
         ],
+        "uagents": [],
         "emails": [
             "| id | email_id               |",
             "| 1  | Dumb@dhakkan.com       |",
@@ -28,7 +29,6 @@
             "| 3  | Dummy@dhakkan.local    |",
             "| 4  | secure@dhakkan.local   |"
         ],
-        "referers": [],
-        "uagents": []
+        "referers": []
     }
 }

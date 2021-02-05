@@ -6,29 +6,29 @@
             "JVY2709DPX"
         ],
         "security": [
-            "referers",
+            "emails",
             "uagents",
-            "users",
-            "emails"
+            "referers",
+            "users"
         ]
     },
     "tables": {
         "JVY2709DPX": [],
-        "referers": [],
-        "uagents": [],
-        "users": [
-            "| id | password   | username |",
-            "| 1  | Dumb       | Dumb     |",
-            "| 2  | I-kill-you | Angelina |",
-            "| 3  | p@ssword   | Dummy    |",
-            "| 4  | crappy     | secure   |"
-        ],
         "emails": [
             "| id | email_id               |",
             "| 1  | Dumb@dhakkan.com       |",
             "| 2  | Angel@iloveu.com       |",
             "| 3  | Dummy@dhakkan.local    |",
             "| 4  | secure@dhakkan.local   |"
+        ],
+        "uagents": [],
+        "referers": [],
+        "users": [
+            "| id | password   | username |",
+            "| 1  | Dumb       | Dumb     |",
+            "| 2  | I-kill-you | Angelina |",
+            "| 3  | p@ssword   | Dummy    |",
+            "| 4  | crappy     | secure   |"
         ]
     }
 }

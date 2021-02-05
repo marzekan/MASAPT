@@ -175,7 +175,7 @@ def __parse_sqlmap_table_dump_output(shell_output: str):
 
 
 # Function that runs entire SQLinjection exploit.
-def run_sql_injection(target: str):
+def run_sql_injection(target: str) -> dict:
 
     retrived_data = {
         "target":f"{target}",
@@ -220,7 +220,11 @@ def run_sql_injection(target: str):
 
     # print(retrived_data)
 
+    return retrived_data
+
 
 # if __name__ == '__main__':
 #
-#     run_sql_injection("localhost/sqlilabs/Less-1/?id=")
+#     d = run_sql_injection("localhost/sqlilabs/Less-1/?id=")
+#
+#     print(d)

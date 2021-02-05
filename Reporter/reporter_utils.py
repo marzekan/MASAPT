@@ -1,5 +1,6 @@
 from prettytable import PrettyTable
 from datetime import datetime
+import json
 
 section_break = "\n\n------------------------------\n\n"
 
@@ -16,6 +17,9 @@ has conducted.
 
 """
 
+
+empty_report = report_header + section_break + "This report is empty..."
+
 CRED = '\33[31m'
 CGREEN = '\33[32m'
 CYELLOW = '\33[33m'
@@ -28,40 +32,40 @@ CEND = '\33[0m'
 
 specials = [CRED, CGREEN, CYELLOW, CCYAN, CBLUE, CBOLD, CEND]
 
-# sqli_test = {
-#     "target": "localhost/sqlilabs/Less-1/?id=",
-#     "dbms_type": "MySQL >= 5.0 (MariaDB fork)",
-#     "databases": {
-#         "challenges": [
-#             "JVY2709DPX"
-#         ],
-#         "security": [
-#             "emails",
-#             "referers",
-#             "uagents",
-#             "users"
-#         ]
-#     },
-#     "tables": {
-#         "JVY2709DPX": [],
-#         "emails": [
-#             "| id | email_id               |",
-#             "| 1  | Dumb@dhakkan.com       |",
-#             "| 2  | Angel@iloveu.com       |",
-#             "| 3  | Dummy@dhakkan.local    |",
-#             "| 4  | secure@dhakkan.local   |"
-#         ],
-#         "referers": [],
-#         "uagents": [],
-#         "users": [
-#             "| id | password   | username |",
-#             "| 1  | Dumb       | Dumb     |",
-#             "| 2  | I-kill-you | Angelina |",
-#             "| 3  | p@ssword   | Dummy    |",
-#             "| 4  | crappy     | secure   |"
-#         ]
-#     }
-# }
+sqli_test = '''{
+    "target": "localhost/sqlilabs/Less-1/?id=",
+    "dbms_type": "MySQL >= 5.0 (MariaDB fork)",
+    "databases": {
+        "challenges": [
+            "JVY2709DPX"
+        ],
+        "security": [
+            "emails",
+            "referers",
+            "uagents",
+            "users"
+        ]
+    },
+    "tables": {
+        "JVY2709DPX": [],
+        "emails": [
+            "| id | email_id               |",
+            "| 1  | Dumb@dhakkan.com       |",
+            "| 2  | Angel@iloveu.com       |",
+            "| 3  | Dummy@dhakkan.local    |",
+            "| 4  | secure@dhakkan.local   |"
+        ],
+        "referers": [],
+        "uagents": [],
+        "users": [
+            "| id | password   | username |",
+            "| 1  | Dumb       | Dumb     |",
+            "| 2  | I-kill-you | Angelina |",
+            "| 3  | p@ssword   | Dummy    |",
+            "| 4  | crappy     | secure   |"
+        ]
+    }
+}'''
 
 
 
@@ -169,11 +173,29 @@ def __remove_special_characters(in_text: str) -> str:
 # Build final report to showcase to the user from multiple sources.
 def build_report(*args, **kwargs):
 
-    report = report_header
-    report += section_break
+    report = ""
 
-    report += __sqli_json_to_report(kwargs["sqli_results"])
+    if "sqli_results" in kwargs:
 
+        # If there is SQLi result passed as parameter - place it into a variable.
+        sqli_res_string = kwargs["sqli_results"]
+
+        # Formatting JSON that is recived in a string.
+        sqli_res_string = sqli_res_string.replace("'", "\"")
+        # Converting string JSON into python dictionary.
+        sqli_res = json.loads(sqli_res_string)
+
+
+        if sqli_res != None:
+
+            report = report_header
+            report += section_break
+
+            report += __sqli_json_to_report(sqli_res)
+
+    else:
+
+        report = empty_report
 
     return report
 
@@ -185,15 +207,6 @@ def save_report_to_txt(report):
 
     time = datetime.now().strftime("%Y_%m_%d_%H_%M_%S")
 
-    with open(f"reports/masapt_report_{time}.txt", "w") as txt_file:
+    with open(f"Reporter/reports/masapt_report_{time}.txt", "w") as txt_file:
         txt_file.write(report)
         txt_file.close()
-
-
-# if __name__ == "__main__":
-#
-#     report = build_report(sqli_results=sqli_test)
-#
-#     save_report_to_txt(report)
-#
-#     print(report)

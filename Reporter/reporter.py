@@ -15,6 +15,7 @@ from reporter_utils import build_report, save_report_to_txt
 
 CVIOLET = '\33[35m'
 CEND = '\33[0m'
+CBOLD = '\33[1m'
 
 newline = "\n\n"
 
@@ -88,9 +89,9 @@ class Reporter(Agent):
 
                 self.agent.log("'Give data dump' request sent")
 
-                time.sleep(1)
-
                 await self.send(msg)
+
+                time.sleep(3)
 
                 return
 
@@ -126,7 +127,7 @@ class Reporter(Agent):
 
                     self.agent.log("Data dump recived")
 
-                    self.agent.recived_data_dump = self.agent.recived_msg.metadata["data_dump"]
+                    self.agent.recived_data_dump = str(self.agent.recived_msg.metadata["data_dump"])
 
                     self.set_next_state("PerformReporting")
 
@@ -157,6 +158,13 @@ class Reporter(Agent):
             if self.agent.count_end_messages < 1:
                 self.agent.log("Shutting down")
                 self.agent.count_end_messages += 1
+
+                print(3*"\n")
+                self.agent.log("Showing generated report:\n")
+
+                print(self.agent.final_report)
+
+                print("Report can be found at: ", CBOLD, "Reporter/reports/", CEND, "\n\n")
 
             self.set_next_state("End")
             time.sleep(2)

@@ -89,9 +89,9 @@ class Coordinator(Agent):
 
                 self.agent.log("Give OSINT sent")
 
-                time.sleep(1)
-
                 await self.send(msg)
+
+                time.sleep(1)
 
                 return
 

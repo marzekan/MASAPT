@@ -88,9 +88,9 @@ class SQLinjector(Agent):
 
                 self.agent.log("'Give target' request sent")
 
-                time.sleep(1)
-
                 await self.send(msg)
+
+                time.sleep(1)
 
                 return
 
