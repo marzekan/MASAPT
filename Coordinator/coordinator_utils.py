@@ -8,10 +8,7 @@ common_db_ports = {
     "neo4j":"7474"
     }
 
-agents = {
-    "sqli":"sql_inform",
-    "dos":"dos_inform"
-}
+agents = ["sqli", "dos"]
 
 osint_info_test = "{'emails':[], 'hosts_found':[], 'open_ports':[{'protocol':'tcp', 'port':'3306', 'name':'mysql'}]}"
 
@@ -22,4 +19,4 @@ def exploit_agent(osint_data: str):
 
     for port in format_osint_data["open_ports"]:
         if port["port"] in common_db_ports.values():
-            return agents["sqli"]
+            return agents[0]

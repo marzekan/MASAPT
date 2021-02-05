@@ -73,7 +73,6 @@ class Explorer(Agent):
                         "ontology":"security",
                         "target":str(self.agent.target),
                         "osint_info": str(self.agent.osint_info),
-                        "role":str(self.agent.role)
                     }
                 )
 
@@ -87,7 +86,7 @@ class Explorer(Agent):
     class InterpretMsg(State):
 
         async def run(self):
-            print(self.agent.sender)
+
             # Check if message sender is coordinator agent
             if self.agent.sender == "coordinator@localhost":
 
@@ -97,7 +96,7 @@ class Explorer(Agent):
 
                 # Coordinator confirms that he got the messasge,.
                 elif self.agent.recived_msg.body == "conf":
-                    self.agent.log("conf recived")
+                    self.agent.log("Coordinator conf recived")
 
                     # If coordinator confirms that he got the payload - Explorer agent stops.
                     self.set_next_state("End")
@@ -130,7 +129,7 @@ class Explorer(Agent):
         # Runs when agent behaviour finishes.
         async def run(self):
             self.agent.log("Shutting down")
-            self.agent.stop()
+            await self.agent.stop()
             spade.quit_spade()
 
     async def setup(self):
@@ -158,8 +157,6 @@ class Explorer(Agent):
 
 
         self.add_behaviour(agent_behaviour, communication_template)
-
-
 
 
 

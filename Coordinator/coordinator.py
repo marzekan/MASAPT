@@ -16,12 +16,15 @@ from coordinator_utils import exploit_agent
 CYELLOW = '\33[33m'
 CEND = '\33[0m'
 
+newline = "\n\n"
+
 class Coordinator(Agent):
     def __init__(self, jid, pwd):
         super().__init__(jid, pwd)
 
         self.role = "Coordinator"
         self.osint_data = None
+        self.exploit_agent = None
 
         self.target: str
         self.recived_msg: Message
@@ -55,13 +58,13 @@ class Coordinator(Agent):
                 self.agent.sender = temp.localpart + "@" + temp.domain
 
                 self.set_next_state("InterpretMsg")
+                return
 
             else:
                 self.set_next_state("AwaitMsg")
 
             # If agent has not recieved OSINT data from explorer, send request to explorer.
             if self.agent.osint_data == None:
-
                 self.agent.message_to_send = "give osint"
                 self.set_next_state("SendMsg")
 
@@ -86,8 +89,10 @@ class Coordinator(Agent):
 
                 await self.send(msg)
 
-            elif self.agent.message_to_send == "sql_inform":
-                msg_exp = Message(
+                return
+
+            elif self.agent.message_to_send == "explorer_conf":
+                msg = Message(
                     to="explorer@localhost",
                     body="conf",
                     metadata={
@@ -96,26 +101,39 @@ class Coordinator(Agent):
                     }
                 )
 
-                msg_sql = Message(
-                    to="sqlinjector@localhost",
-                    body=f"{self.agent.message_to_send}",
-                    metadata={
-                        "performative":"inform",
-                        "ontology":"security",
-                        "osint_data":str(self.agent.osint_data),
-                        "target":str(self.agent.target)
-                    }
-                )
+                await self.send(msg)
 
-                self.send(msg_exp)
+                self.agent.message_to_send = "inform_attackers"
+
                 self.agent.log("Confirmation to Explorer sent")
 
-                self.send(msg_sql)
-                self.agent.log("SQLinjector informed")
-
-                self.set_next_state("AwaitMsg")
+                self.set_next_state("SendMsg")
 
                 return
+
+
+            elif self.agent.message_to_send == "inform_attackers":
+
+                if self.agent.exploit_agent == "sqli":
+
+                    msg = Message(
+                        to="sqlinjector@localhost",
+                        body=f"{self.agent.message_to_send}",
+                        metadata={
+                            "performative":"inform",
+                            "ontology":"security",
+                            "osint_data":str(self.agent.osint_data),
+                            "target":str(self.agent.target)
+                        }
+                    )
+
+                    await self.send(msg)
+
+                    self.agent.log("SQLinjector informed")
+
+                    self.set_next_state("AwaitMsg")
+
+                    return
 
 
     class InterpretMsg(State):
@@ -124,32 +142,47 @@ class Coordinator(Agent):
 
             # Check if message sender is explorer agent
             if self.agent.sender == "explorer@localhost":
-
+                # print(newline, "tu", newline)
                 if self.agent.recived_msg.body == "osint data":
 
                     self.agent.log("OSINT data recived")
 
                     self.agent.osint_data = self.agent.recived_msg.metadata["osint_info"]
                     self.agent.target = self.agent.recived_msg.metadata["target"]
-
+                    # print(newline, "tu2", newline)
                     self.set_next_state("DecideAgent")
+
+                    return
 
             elif self.agent.sender == "sqlinjector@localhost":
 
                 if self.agent.recived_msg.body == "sql_conf":
 
+                    self.agent.log("SQLinjector conf recived")
                     self.set_next_state("End")
+
+                    return
 
 
     class DecideAgent(State):
 
         async def run(self):
 
-            next_agent_inform = exploit_agent(self.agent.osint_data)
+            attacker_agent = exploit_agent(self.agent.osint_data)
+
+            # print(newline, "tu3", newline)
 
             self.agent.target = self.agent.recived_msg.metadata["target"]
-            self.agent.message_to_send = next_agent_inform
+
+            self.agent.exploit_agent = attacker_agent
+
+            self.agent.message_to_send = "explorer_conf"
+
+            # print(newline, "tu4", newline)
+
             self.set_next_state("SendMsg")
+
+            return
 
 
     class End(State):
@@ -177,6 +210,7 @@ class Coordinator(Agent):
 
         agent_behaviour.add_transition(source="DecideAgent", dest="SendMsg")
         agent_behaviour.add_transition(source="SendMsg", dest="AwaitMsg")
+        agent_behaviour.add_transition(source="SendMsg", dest="SendMsg")
         agent_behaviour.add_transition(source="AwaitMsg", dest="AwaitMsg")
         agent_behaviour.add_transition(source="AwaitMsg", dest="SendMsg")
         agent_behaviour.add_transition(source="AwaitMsg", dest="InterpretMsg")
