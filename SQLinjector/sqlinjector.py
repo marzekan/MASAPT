@@ -16,6 +16,7 @@ from sqli_utils import run_sql_injection
 CRED = '\33[31m'
 CEND = '\33[0m'
 
+newline = "\n\n"
 
 class SQLinjector(Agent):
     def __init__(self, jid, pwd):
@@ -28,6 +29,8 @@ class SQLinjector(Agent):
         self.recived_msg: Message
         self.sender: str
         self.message_to_send: str
+
+        self.count_end_messages = 0
 
         self.contacts = ["sqlinjector@localhost"]
 
@@ -124,7 +127,7 @@ class SQLinjector(Agent):
 
                 await self.send(msg)
 
-                self.agent.log("Reporter informed")
+                self.agent.log("EXPLOIT FINISHED - reporter informed")
 
                 self.set_next_state("AwaitMsg")
 
@@ -162,12 +165,11 @@ class SQLinjector(Agent):
 
         async def run(self):
 
-            data_dump = run_sql_injection(self.agent.target + "/Less-1/?id=")
+            data_dump = run_sql_injection(self.agent.target + "/?id=")
 
             self.agent.dumped_data = str(data_dump)
 
             self.agent.message_to_send = "coordinator_conf"
-
 
             self.set_next_state("SendMsg")
 
@@ -177,9 +179,18 @@ class SQLinjector(Agent):
     class End(State):
         # Runs when agent behaviour finishes.
         async def run(self):
-            self.agent.log("Shutting down")
-            self.agent.stop()
-            spade.quit_spade()
+
+            if self.agent.count_end_messages < 1:
+                self.agent.log("Shutting down")
+                self.agent.count_end_messages += 1
+
+            self.set_next_state("End")
+            time.sleep(2)
+
+        # async def run(self):
+        #     self.agent.log("Shutting down")
+        #     self.agent.stop()
+        #     spade.quit_spade()
 
 
     async def setup(self):
@@ -205,6 +216,7 @@ class SQLinjector(Agent):
         agent_behaviour.add_transition(source="AwaitMsg", dest="InterpretMsg")
         agent_behaviour.add_transition(source="InterpretMsg", dest="PerformExploit")
         agent_behaviour.add_transition(source="InterpretMsg", dest="End")
+        agent_behaviour.add_transition(source="End", dest="End")
 
 
         self.add_behaviour(agent_behaviour, communication_template)
@@ -225,12 +237,11 @@ if __name__ == "__main__":
     future = sqlinjector.start()
     future.result()
 
-    print("Wait for user interrupts with ctrl+c")
     while True:
         try:
             time.sleep(1)
         except KeyboardInterrupt:
-            break;
+            break
 
 
     sqlinjector.stop()

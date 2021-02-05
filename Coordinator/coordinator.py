@@ -31,6 +31,8 @@ class Coordinator(Agent):
         self.sender: str
         self.message_to_send: str
 
+        self.count_end_messages = 0
+
         self.contacts = ["sqlinjector@localhost", "dos@localhost"]
 
 
@@ -154,12 +156,22 @@ class Coordinator(Agent):
 
                     return
 
+
             elif self.agent.sender == "sqlinjector@localhost":
 
                 if self.agent.recived_msg.body == "sql_conf":
 
                     self.agent.log("SQLinjector conf recived")
                     self.set_next_state("End")
+
+                    return
+
+                elif self.agent.recived_msg.body == "give target":
+
+                    self.agent.log("SQLinjector requests target data")
+                    self.agent.message_to_send = "inform_attackers"
+                    self.agent.exploit_agent = "sqli"
+                    self.set_next_state("SendMsg")
 
                     return
 
@@ -184,11 +196,20 @@ class Coordinator(Agent):
 
 
     class End(State):
+        # async def run(self):
+            # self.agent.log("Shutting down")
+            # self.agent.stop()
+            # spade.quit_spade()
+
         # Runs when agent behaviour finishes.
         async def run(self):
-            self.agent.log("Shutting down")
-            self.agent.stop()
-            spade.quit_spade()
+
+            if self.agent.count_end_messages < 1:
+                self.agent.log("Shutting down")
+                self.agent.count_end_messages += 1
+
+            self.set_next_state("End")
+            time.sleep(2)
 
 
     async def setup(self):
@@ -209,11 +230,13 @@ class Coordinator(Agent):
         agent_behaviour.add_transition(source="DecideAgent", dest="SendMsg")
         agent_behaviour.add_transition(source="SendMsg", dest="AwaitMsg")
         agent_behaviour.add_transition(source="SendMsg", dest="SendMsg")
+        agent_behaviour.add_transition(source="InterpretMsg", dest="SendMsg")
         agent_behaviour.add_transition(source="AwaitMsg", dest="AwaitMsg")
         agent_behaviour.add_transition(source="AwaitMsg", dest="SendMsg")
         agent_behaviour.add_transition(source="AwaitMsg", dest="InterpretMsg")
         agent_behaviour.add_transition(source="InterpretMsg", dest="DecideAgent")
         agent_behaviour.add_transition(source="InterpretMsg", dest="End")
+        agent_behaviour.add_transition(source="End", dest="End")
 
 
         self.add_behaviour(agent_behaviour, communication_template)
@@ -234,12 +257,11 @@ if __name__ == "__main__":
     future = coordinator.start()
     future.result()
 
-    print("Wait for user interrupts with ctrl+c")
     while True:
         try:
             time.sleep(1)
         except KeyboardInterrupt:
-            break;
+            break
 
 
     coordinator.stop()

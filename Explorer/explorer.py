@@ -10,6 +10,7 @@ from spade.message import Message
 from spade.template import Template
 
 from aioxmpp import JID
+from contextlib import suppress
 
 from explorer_utils import run_osint
 
@@ -23,10 +24,15 @@ class Explorer(Agent):
         self.role = "Explorer"
         self.target = target
 
+        if "localhost" in target:
+            self.target_ip = "127.0.0.1"
+
         self.recived_msg: Message
         self.sender: str
         self.osint_info: dict
         self.message_to_send: str
+
+        self.count_end_messages = 0
 
         self.contacts = ["coordinator@localhost"]
 
@@ -109,7 +115,7 @@ class Explorer(Agent):
         async def run(self):
 
             # Run OSINT analysis and set results in osint_info
-            self.agent.osint_info = run_osint(self.agent.target)
+            self.agent.osint_info = run_osint(self.agent.target_ip)
 
             # If run_osint has failed or the target is offline.
             if self.agent.osint_info == None or len(self.agent.osint_info.keys()) == 0:
@@ -128,9 +134,15 @@ class Explorer(Agent):
     class End(State):
         # Runs when agent behaviour finishes.
         async def run(self):
-            self.agent.log("Shutting down")
-            await self.agent.stop()
-            spade.quit_spade()
+
+            if self.agent.count_end_messages < 1:
+                self.agent.log("Shutting down")
+                self.agent.count_end_messages += 1
+
+            self.set_next_state("End")
+            time.sleep(2)
+            # await self.agent.stop()
+            # spade.quit_spade()
 
     async def setup(self):
         self.log("Starting...")
@@ -154,6 +166,7 @@ class Explorer(Agent):
         agent_behaviour.add_transition(source="AwaitMsg", dest="InterpretMsg")
         agent_behaviour.add_transition(source="InterpretMsg", dest="SendMsg")
         agent_behaviour.add_transition(source="InterpretMsg", dest="End")
+        agent_behaviour.add_transition(source="End", dest="End")
 
 
         self.add_behaviour(agent_behaviour, communication_template)
@@ -165,7 +178,7 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Runs explorer agent.")
     parser.add_argument("-jid", type=str, help="Explorer agents JID for XMPP service", default="explorer@localhost")
     parser.add_argument("-pwd", type=str, help="Explorer agents password for XMPP service", default="explorerSecret")
-    parser.add_argument("-t", "--target", type=str, help="Pass target address on which to perform OSINT analysis", default="127.0.0.1")
+    parser.add_argument("-t", "--target", type=str, help="Pass target address on which to perform OSINT analysis", default="localhost/sqlilabs/Less-1")
 
     args = parser.parse_args()
 
@@ -174,16 +187,11 @@ if __name__ == "__main__":
     future = explorer.start()
     future.result()
 
-    print(explorer.target)
-
-
-    # input("Press ENTER to exit.\n")
-    print("Wait for user interrupts with ctrl+c")
     while True:
         try:
             time.sleep(1)
         except KeyboardInterrupt:
-            break;
+            break
 
     explorer.stop()
     spade.quit_spade()
