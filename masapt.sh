@@ -12,6 +12,8 @@ ejabber_proc_num=$(ps aux | grep ejabberd -c)
 
 python Explorer/explorer.py -t 127.0.0.1 &
 
-python Coordinator/coordinator.py
+python Coordinator/coordinator.py &
+
+python SQLinjector/sqlinjector.py &
 
 wait

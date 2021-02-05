@@ -122,8 +122,8 @@ class Coordinator(Agent):
                         metadata={
                             "performative":"inform",
                             "ontology":"security",
-                            "osint_data":str(self.agent.osint_data),
-                            "target":str(self.agent.target)
+                            "target":str(self.agent.target),
+                            "recipient":"sqli",
                         }
                     )
 
@@ -142,14 +142,14 @@ class Coordinator(Agent):
 
             # Check if message sender is explorer agent
             if self.agent.sender == "explorer@localhost":
-                # print(newline, "tu", newline)
+
                 if self.agent.recived_msg.body == "osint data":
 
                     self.agent.log("OSINT data recived")
 
                     self.agent.osint_data = self.agent.recived_msg.metadata["osint_info"]
                     self.agent.target = self.agent.recived_msg.metadata["target"]
-                    # print(newline, "tu2", newline)
+
                     self.set_next_state("DecideAgent")
 
                     return
@@ -170,7 +170,6 @@ class Coordinator(Agent):
 
             attacker_agent = exploit_agent(self.agent.osint_data)
 
-            # print(newline, "tu3", newline)
 
             self.agent.target = self.agent.recived_msg.metadata["target"]
 
@@ -178,7 +177,6 @@ class Coordinator(Agent):
 
             self.agent.message_to_send = "explorer_conf"
 
-            # print(newline, "tu4", newline)
 
             self.set_next_state("SendMsg")
 
@@ -243,7 +241,6 @@ if __name__ == "__main__":
         except KeyboardInterrupt:
             break;
 
-    # input("Press ENTER to exit.\n")
 
     coordinator.stop()
     spade.quit_spade()

@@ -6,14 +6,15 @@
             "JVY2709DPX"
         ],
         "security": [
-            "emails",
             "referers",
+            "emails",
             "uagents",
             "users"
         ]
     },
     "tables": {
         "JVY2709DPX": [],
+        "referers": [],
         "emails": [
             "| id | email_id               |",
             "| 1  | Dumb@dhakkan.com       |",
@@ -21,7 +22,6 @@
             "| 3  | Dummy@dhakkan.local    |",
             "| 4  | secure@dhakkan.local   |"
         ],
-        "referers": [],
         "uagents": [],
         "users": [
             "| id | password   | username |",

