@@ -5,6 +5,7 @@ __pycache__/
 .vscode
 
 opisi.txt
+SQLinjector/dumped.json
 
 # C extensions
 *.so
