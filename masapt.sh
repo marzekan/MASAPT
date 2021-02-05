@@ -25,6 +25,10 @@ sleep 3
 
 python SQLinjector/sqlinjector.py &
 
+sleep 5
+
+python Reporter/reporter.py &
+
 wait
 
 
