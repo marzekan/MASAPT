@@ -5,7 +5,7 @@ import spade
 import time
 import random
 from spade.agent import Agent
-from spade.behaviour import FSMBehaviour, State
+from spade.behaviour import FSMBehaviour, State, PeriodicBehaviour
 from spade.message import Message
 from spade.template import Template
 
@@ -24,17 +24,13 @@ class Explorer(Agent):
         self.recived_msg: Message
         self.sender: str
         self.osint_info: dict
-        self.message_to_send = "marco"
-
+        self.message_to_send: str
 
         self.contacts = ["coordinator@localhost"]
 
 
     def log(self, message):
         print(f"{CGREEN} {self.role} {CEND}: {message}")
-
-    def on_coordinator_available(peer_jid, stanza):
-        pass
 
     class Behaviour(FSMBehaviour):
         async def on_start(self):
@@ -63,30 +59,30 @@ class Explorer(Agent):
     class SendMsg(State):
         async def run(self):
 
-            # If message to send is 'marco' that means that coordinator still hasn't confirmed that he is available.
-            if self.agent.message_to_send == "marco":
-
-                msg = Message(
-                    to="coordinator@localhost",
-                    body=f"{self.agent.message_to_send}",
-                    metadata={
-                        "performative":"inform",
-                        "ontology":"security",
-                    }
-                )
-
-                self.agent.log("marco sent")
-
-                # If message is still 'marco' send marco until coordinator respondes
-                self.set_next_state("SendMsg")
-
-                # Check if coordinator is available every second.
-                time.sleep(1)
-
-                await self.send(msg)
+            # # If message to send is 'marco' that means that coordinator still hasn't confirmed that he is available.
+            # if self.agent.message_to_send == "marco":
+            #
+            #     msg = Message(
+            #         to="coordinator@localhost",
+            #         body=f"{self.agent.message_to_send}",
+            #         metadata={
+            #             "performative":"inform",
+            #             "ontology":"security",
+            #         }
+            #     )
+            #
+            #     self.agent.log("marco sent")
+            #
+            #     # If message is still 'marco' send marco until coordinator respondes
+            #     self.set_next_state("SendMsg")
+            #
+            #     # Check if coordinator is available every second.
+            #     time.sleep(1)
+            #
+            #     await self.send(msg)
 
             # If the message to send is 'osint data' that means that coordinator has confirmed that he is available to recive the data,
-            elif self.agent.message_to_send == "osint data":
+            if self.agent.message_to_send == "osint data":
                 # If coordinator is online send him OSINT data.
                 msg = Message(
                     to="coordinator@localhost",
@@ -113,13 +109,17 @@ class Explorer(Agent):
             # Check if message sender is coordinator agent
             if self.agent.recived_msg.sender == "coordinator@localhost":
 
-                # Coordinator responds that he is available.
-                if self.recived_msg.body == "polo":
-                    self.agent.log("polo recived")
-                    # If coordinator is available - send him OSINT data.
+                # # Coordinator responds that he is available.
+                # if self.recived_msg.body == "polo":
+                #     self.agent.log("polo recived")
+                #     # If coordinator is available - send him OSINT data.
+                #     self.agent.message_to_send = "osint data"
+                #     self.set_next_state("SendMsg")
+                #     return
+
+                if self.agent.recived_msg == "give osint":
                     self.agent.message_to_send = "osint data"
                     self.set_next_state("SendMsg")
-                    return
 
                 # Coordinator confirms that he got the messasge,.
                 elif self.agent.recived_msg.body == "conf":
@@ -149,6 +149,7 @@ class Explorer(Agent):
             # If data has been gathered successfully then send that to coordinator.
             else:
                 self.agent.log("OSINT completed")
+                self.agent.message_to_send = "osint data"
                 self.set_next_state("SendMsg")
 
     class End(State):
@@ -176,7 +177,6 @@ class Explorer(Agent):
         agent_behaviour.add_transition(source="PerformOSINT", dest="PerformOSINT")
         agent_behaviour.add_transition(source="PerformOSINT", dest="SendMsg")
         agent_behaviour.add_transition(source="SendMsg", dest="AwaitMsg")
-        agent_behaviour.add_transition(source="SendMsg", dest="SendMsg")
         agent_behaviour.add_transition(source="AwaitMsg", dest="AwaitMsg")
         agent_behaviour.add_transition(source="AwaitMsg", dest="InterpretMsg")
         agent_behaviour.add_transition(source="InterpretMsg", dest="SendMsg")
