@@ -9,6 +9,8 @@ from spade.behaviour import FSMBehaviour, State
 from spade.message import Message
 from spade.template import Template
 
+from aioxmpp import JID
+
 from coordinator_utils import exploit_agent
 
 CYELLOW = '\33[33m'
@@ -19,13 +21,12 @@ class Coordinator(Agent):
         super().__init__(jid, pwd)
 
         self.role = "Coordinator"
+        self.osint_data = None
 
         self.target: str
         self.recived_msg: Message
         self.sender: str
-        self.osint_data: str
         self.message_to_send: str
-
 
         self.contacts = ["sqlinjector@localhost", "dos@localhost"]
 
@@ -50,58 +51,71 @@ class Coordinator(Agent):
             if msg:
 
                 self.agent.recived_msg = msg
-                self.agent.sender = str(msg.sender)
+                temp = JID.fromstr(str(msg.sender))
+                self.agent.sender = temp.localpart + "@" + temp.domain
 
                 self.set_next_state("InterpretMsg")
 
             else:
                 self.set_next_state("AwaitMsg")
 
+            # If agent has not recieved OSINT data from explorer, send request to explorer.
+            if self.agent.osint_data == None:
+
+                self.agent.message_to_send = "give osint"
+                self.set_next_state("SendMsg")
+
 
     class SendMsg(State):
         async def run(self):
 
-            # If message to send is 'marco' that means that coordinator still hasn't confirmed that he is available.
-            if self.agent.message_to_send == "marco":
+            if self.agent.message_to_send == "give osint":
 
                 msg = Message(
-                    to="coordinator@localhost",
+                    to="explorer@localhost",
                     body=f"{self.agent.message_to_send}",
                     metadata={
                         "performative":"inform",
                         "ontology":"security",
                     }
                 )
-
-                self.agent.log("marco sent")
-
-                # If message is still 'marco' send marco until coordinator respondes
-                self.set_next_state("SendMsg")
-
-                # Check if coordinator is available every second.
-                time.sleep(1)
-
-                await self.send(msg)
-
-            # If the message to send is 'osint data' that means that coordinator has confirmed that he is available to recive the data,
-            elif self.agent.message_to_send == "osint data":
-                # If coordinator is online send him OSINT data.
-                msg = Message(
-                    to="coordinator@localhost",
-                    body=f"{self.agent.message_to_send}",
-                    metadata={
-                        "performative":"inform",
-                        "ontology":"security",
-                        "target":str(self.agent.target),
-                        "osint_info": str(self.agent.osint_info)
-                    }
-                )
-
-                self.agent.log("OSINT data sent")
-
-                await self.send(msg)
 
                 self.set_next_state("AwaitMsg")
+
+                self.agent.log("Give OSINT sent")
+
+                await self.send(msg)
+
+            elif self.agent.message_to_send == "sql_inform":
+                msg_exp = Message(
+                    to="explorer@localhost",
+                    body="conf",
+                    metadata={
+                        "performative":"inform",
+                        "ontology":"security",
+                    }
+                )
+
+                msg_sql = Message(
+                    to="sqlinjector@localhost",
+                    body=f"{self.agent.message_to_send}",
+                    metadata={
+                        "performative":"inform",
+                        "ontology":"security",
+                        "osint_data":str(self.agent.osint_data),
+                        "target":str(self.agent.target)
+                    }
+                )
+
+                self.send(msg_exp)
+                self.agent.log("Confirmation to Explorer sent")
+
+                self.send(msg_sql)
+                self.agent.log("SQLinjector informed")
+
+                self.set_next_state("AwaitMsg")
+
+                return
 
 
     class InterpretMsg(State):
@@ -109,44 +123,34 @@ class Coordinator(Agent):
         async def run(self):
 
             # Check if message sender is explorer agent
-            if self.agent.recived_msg.sender == "explorer@localhost":
+            if self.agent.sender == "explorer@localhost":
 
-                # Explorer checks if coordinator is available.
-                if self.recived_msg.body == "marco":
-                    self.agent.log("marco recived")
-
-                    # If coordinator is available - send him OSINT data.
-                    self.agent.message_to_send = "polo"
-                    self.set_next_state("SendMsg")
-
-                    return
-
-                # Coordinator confirms that he got the messasge,.
-            elif self.agent.recived_msg.body == "osint data":
+                if self.agent.recived_msg.body == "osint data":
 
                     self.agent.log("OSINT data recived")
 
-                    # If explorer has sent OSINT results - send confirmation
-                    self.agent.message_to_send = "conf"
-                    self.set_next_state("SendMsg")
+                    self.agent.osint_data = self.agent.recived_msg.metadata["osint_info"]
+                    self.agent.target = self.agent.recived_msg.metadata["target"]
 
-                    return
+                    self.set_next_state("DecideAgent")
 
+            elif self.agent.sender == "sqlinjector@localhost":
+
+                if self.agent.recived_msg.body == "sql_conf":
+
+                    self.set_next_state("End")
 
 
     class DecideAgent(State):
 
         async def run(self):
 
-            next_agent = exploit_agent(self.agent.osint_data)
+            next_agent_inform = exploit_agent(self.agent.osint_data)
 
-            if next_agent == None or next_agent == "" or next_agent not in self.agent.contacts:
+            self.agent.target = self.agent.recived_msg.metadata["target"]
+            self.agent.message_to_send = next_agent_inform
+            self.set_next_state("SendMsg")
 
-                self.set_next_state("DecideAgent")
-
-            else:
-                self.agent.message_to_send = "sqli ping"
-                self.set_next_state("SendMsg")
 
     class End(State):
         # Runs when agent behaviour finishes.
@@ -154,6 +158,7 @@ class Coordinator(Agent):
             self.agent.log("Shutting down")
             self.agent.stop()
             spade.quit_spade()
+
 
     async def setup(self):
         self.log("Starting...")
@@ -164,19 +169,18 @@ class Coordinator(Agent):
 
         agent_behaviour = self.Behaviour()
 
-        agent_behaviour.add_state(name="AwaitMsg", state=self.AwaitMsg())
+        agent_behaviour.add_state(name="AwaitMsg", state=self.AwaitMsg(), initial=True)
         agent_behaviour.add_state(name="SendMsg", state=self.SendMsg())
         agent_behaviour.add_state(name="InterpretMsg", state=self.InterpretMsg())
-        agent_behaviour.add_state(name="DecideAgent", state=self.DecideAgent(), initial=True)
+        agent_behaviour.add_state(name="DecideAgent", state=self.DecideAgent())
         agent_behaviour.add_state(name="End", state=self.End())
 
-        agent_behaviour.add_transition(source="DecideAgent", dest="DecideAgent")
         agent_behaviour.add_transition(source="DecideAgent", dest="SendMsg")
         agent_behaviour.add_transition(source="SendMsg", dest="AwaitMsg")
-        agent_behaviour.add_transition(source="SendMsg", dest="SendMsg")
         agent_behaviour.add_transition(source="AwaitMsg", dest="AwaitMsg")
+        agent_behaviour.add_transition(source="AwaitMsg", dest="SendMsg")
         agent_behaviour.add_transition(source="AwaitMsg", dest="InterpretMsg")
-        agent_behaviour.add_transition(source="InterpretMsg", dest="SendMsg")
+        agent_behaviour.add_transition(source="InterpretMsg", dest="DecideAgent")
         agent_behaviour.add_transition(source="InterpretMsg", dest="End")
 
 
@@ -198,7 +202,14 @@ if __name__ == "__main__":
     future = coordinator.start()
     future.result()
 
-    input("Press ENTER to exit.\n")
+    print("Wait for user interrupts with ctrl+c")
+    while True:
+        try:
+            time.sleep(1)
+        except KeyboardInterrupt:
+            break;
+
+    # input("Press ENTER to exit.\n")
 
     coordinator.stop()
     spade.quit_spade()

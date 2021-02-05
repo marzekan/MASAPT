@@ -5,9 +5,11 @@ import spade
 import time
 import random
 from spade.agent import Agent
-from spade.behaviour import FSMBehaviour, State, PeriodicBehaviour
+from spade.behaviour import FSMBehaviour, State
 from spade.message import Message
 from spade.template import Template
+
+from aioxmpp import JID
 
 from explorer_utils import run_osint
 
@@ -48,7 +50,8 @@ class Explorer(Agent):
             if msg:
 
                 self.agent.recived_msg = msg
-                self.agent.sender = str(msg.sender)
+                temp = JID.fromstr(str(msg.sender))
+                self.agent.sender = temp.localpart + "@" + temp.domain
 
                 self.set_next_state("InterpretMsg")
 
@@ -59,39 +62,18 @@ class Explorer(Agent):
     class SendMsg(State):
         async def run(self):
 
-            # # If message to send is 'marco' that means that coordinator still hasn't confirmed that he is available.
-            # if self.agent.message_to_send == "marco":
-            #
-            #     msg = Message(
-            #         to="coordinator@localhost",
-            #         body=f"{self.agent.message_to_send}",
-            #         metadata={
-            #             "performative":"inform",
-            #             "ontology":"security",
-            #         }
-            #     )
-            #
-            #     self.agent.log("marco sent")
-            #
-            #     # If message is still 'marco' send marco until coordinator respondes
-            #     self.set_next_state("SendMsg")
-            #
-            #     # Check if coordinator is available every second.
-            #     time.sleep(1)
-            #
-            #     await self.send(msg)
-
             # If the message to send is 'osint data' that means that coordinator has confirmed that he is available to recive the data,
             if self.agent.message_to_send == "osint data":
                 # If coordinator is online send him OSINT data.
                 msg = Message(
-                    to="coordinator@localhost",
+                    to=str(self.agent.sender),
                     body=f"{self.agent.message_to_send}",
                     metadata={
                         "performative":"inform",
                         "ontology":"security",
                         "target":str(self.agent.target),
-                        "osint_info": str(self.agent.osint_info)
+                        "osint_info": str(self.agent.osint_info),
+                        "role":str(self.agent.role)
                     }
                 )
 
@@ -105,19 +87,11 @@ class Explorer(Agent):
     class InterpretMsg(State):
 
         async def run(self):
-
+            print(self.agent.sender)
             # Check if message sender is coordinator agent
-            if self.agent.recived_msg.sender == "coordinator@localhost":
+            if self.agent.sender == "coordinator@localhost":
 
-                # # Coordinator responds that he is available.
-                # if self.recived_msg.body == "polo":
-                #     self.agent.log("polo recived")
-                #     # If coordinator is available - send him OSINT data.
-                #     self.agent.message_to_send = "osint data"
-                #     self.set_next_state("SendMsg")
-                #     return
-
-                if self.agent.recived_msg == "give osint":
+                if self.agent.recived_msg.body == "give osint":
                     self.agent.message_to_send = "osint data"
                     self.set_next_state("SendMsg")
 
@@ -150,7 +124,7 @@ class Explorer(Agent):
             else:
                 self.agent.log("OSINT completed")
                 self.agent.message_to_send = "osint data"
-                self.set_next_state("SendMsg")
+                self.set_next_state("AwaitMsg")
 
     class End(State):
         # Runs when agent behaviour finishes.
@@ -175,7 +149,7 @@ class Explorer(Agent):
         agent_behaviour.add_state(name="End", state=self.End())
 
         agent_behaviour.add_transition(source="PerformOSINT", dest="PerformOSINT")
-        agent_behaviour.add_transition(source="PerformOSINT", dest="SendMsg")
+        agent_behaviour.add_transition(source="PerformOSINT", dest="AwaitMsg")
         agent_behaviour.add_transition(source="SendMsg", dest="AwaitMsg")
         agent_behaviour.add_transition(source="AwaitMsg", dest="AwaitMsg")
         agent_behaviour.add_transition(source="AwaitMsg", dest="InterpretMsg")
@@ -184,6 +158,7 @@ class Explorer(Agent):
 
 
         self.add_behaviour(agent_behaviour, communication_template)
+
 
 
 
@@ -205,7 +180,13 @@ if __name__ == "__main__":
     print(explorer.target)
 
 
-    input("Press ENTER to exit.\n")
+    # input("Press ENTER to exit.\n")
+    print("Wait for user interrupts with ctrl+c")
+    while True:
+        try:
+            time.sleep(1)
+        except KeyboardInterrupt:
+            break;
 
     explorer.stop()
     spade.quit_spade()
