@@ -26,7 +26,7 @@ _Multi-Agent System for Automated Penetration Testing_ 🐱‍💻
 
 ### Explore → Exploit → Report → 📝
 
-A autonomous system of agents communication over XMPP to coordinate and perform
+An autonomous system of _[SPADE](https://spade-mas.readthedocs.io/en/latest/index.html)_ agents communication over XMPP to coordinate and perform
 penetration testing. In a CLI tool!
 
 Pass the URL, wait a bit, read the report!
@@ -34,16 +34,17 @@ Pass the URL, wait a bit, read the report!
 &nbsp;
 &nbsp;
 
-![report1](readme_files/smallreport1.png) ![report1](readme_files/smallreport2.png)
+![report1](readme_files/images/smallreport1.png) ![report1](readme_files/images/smallreport2.png)
 
 ___
 
 ## What is MASAPT?
 
-It's a _proof-of-conept_, multi-agent system for automating the process of penetration testing.
+It's a _proof-of-concept_, multi-agent system, developed in Python, intented to be used
+for automating the process of penetration testing in a structured and inteligent way.
 
-**The ultimate goal** is to make a working, flexible, distributed, CLI based - pentesting tool
-that can be used for automating penetration testing tasks.
+**The ultimate goal** is to make a working, flexible, distributed, CLI based - pentesting
+tool that can be used for automating penetration testing tasks.
 
 Currently implemented features:
 
@@ -62,9 +63,10 @@ _Difficult_.
 
 There's a fair number of prerequisites and requirements to install:
 
-- Kali Linux 2020.4 (_optional_) - any debian based OS should work fine.
+- Kali Linux 2020.4 (_optional_) - any Debian based OS should work fine.
 - Python 3.8
 - Pip3
+- SPADE
 - SQLMap (Already installed on Kali)
 - Nmap (Already installed on Kali)
 
@@ -155,7 +157,61 @@ ___
 
 ## System overview 🔎
 
-## Theory dive 📜
+MASAPT system was envisioned to be **_modular_**, **_distributed_** and **_pragmatic_**. Meaning that agents
+that make up the system are independent of the main process, upgradeable and use existing, 'battle-tested'
+pentesting tools.
+
+To achieve the goals envisioned, agents are developed as part of a **_three-tier model_** which is derived from
+standard steps of conducting a pentest (planning - execution - post execution). A very high overview of the said model can be seen on an image below.
+
+In the first image, arrows represent the flow of data in the model. 
+
+First tier contains the **Explorer** agent(s) which are tasked with conducting OSINT and gathering any useful intelligence about the target.
+
+Second tier contains the **Coordinator** agent and **_Exploit_** agents. The Coordinator is a single agent
+that decides which exploit agents are going to take part in the current testing. Exploit agents, as the name
+implies, are the ones running exploits - SQL injection, XSS, DoS, buffer overflow... There can be many of
+these exploit agents.
+
+Third tier contains the **Reporter** whose task is to collect all exploit data, results, data dumps from
+all exploit agents and summarise it in a final report. The report is then showed to the user and stored
+locally.
+
+&nbsp;
+
+![Img1](/readme_files/images/threetier.png) ![Img2](/readme_files/images/detailedthree.png)
+
+&nbsp;
+&nbsp;
+
+![Img3](/readme_files/images/current.png) ![Img4](/readme_files/images/futureidea.png)
+
+
+Second image shows the same model as the first image but in greater detail. Agents can be
+clearly found in their respective tiers.
+
+### Agent behaviour
+
+Aside its ability to communicate, behaviour is the second most important aspect of any agent.
+MASAPT agents and their behaviour is modelled with a set of states, what makes them: __finite state automata__ or __finite state machines__. SPADE environment has good support for creating finite
+state machines.
+
+Diagrams below show all possible states an agent can be in at any moment.
+in time. Diagrams also show what events cause agent to switch to the next state.
+ALL FUTURE AGENTS should be implemented in the same manner.
+
+All future exploit agents (ex. DoS, XSS...) should be implemented using the Img 8. diagram as template
+
+&nbsp;
+
+![Img5](/readme_files/images/coordinator_fsm.PNG) ![Img6](/readme_files/images/explorer_fsm.PNG)
+
+&nbsp;
+
+![Img7](/readme_files/images/reporter_fsm.PNG) ![Img8](/readme_files/images/exploit_fsm.PNG)
+
+&nbsp;
+
 
 ## References 🔗
 
