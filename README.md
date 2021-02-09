@@ -162,11 +162,15 @@ that make up the system are independent of the main process, upgradeable and use
 pentesting tools.
 
 To achieve the goals envisioned, agents are developed as part of a **_three-tier model_** which is derived from
-standard steps of conducting a pentest (planning - execution - post execution). A very high overview of the said model can be seen on an image below.
+standard pentest phases (_planning - execution - post execution_). A very high overview of the said model can be seen on **Img1** below.
 
-In the first image, arrows represent the flow of data in the model. 
+All theoretical concepts in this overview have already been implemented in code (apart from the idea for the future - **Img 8.**). These concepts should continue to be implemented in any future upgrades to the system.
 
-First tier contains the **Explorer** agent(s) which are tasked with conducting OSINT and gathering any useful intelligence about the target.
+### _Three-tier model_
+
+Main idea behind the _three-tier model_ is to provide a framework to be used for organizing and classifying agents in this system.
+
+First tier of the model contains the **Explorer** agent(s) which are tasked with conducting OSINT and gathering any useful intelligence about the target.
 
 Second tier contains the **Coordinator** agent and **_Exploit_** agents. The Coordinator is a single agent
 that decides which exploit agents are going to take part in the current testing. Exploit agents, as the name
@@ -177,18 +181,54 @@ Third tier contains the **Reporter** whose task is to collect all exploit data, 
 all exploit agents and summarise it in a final report. The report is then showed to the user and stored
 locally.
 
-&nbsp;
-
-![Img1](/readme_files/images/threetier.png) ![Img2](/readme_files/images/detailedthree.png)
+In the first image, thick arrows represent the flow of data in the model.
 
 &nbsp;
+
+![Img1](/readme_files/images/threetier.png) &ensp; &ensp; ![Img2](/readme_files/images/detailedthree.png)
+
+&nbsp;
+
+**Img2** shows the same model as the first image but in greater detail - agents can be
+clearly seen in their respective tiers. The _full_ arrows in this image again represent the flow of data
+in the model which consequently shows which agents are communicating with each other. It can be seen that
+**Explorer** agent sends data to the **Coordinator** agent, who then in turn sends some data to the
+**Exploit** agents (SQLinjector, agent2, agent3). Finally, all the data that exploit agents gather is
+passed to the **Reporter** agent who then compiles it, summarises it and presents it to the user.
+
+It can also be seen that only **Explorer** and **Exploit** (SQLinjector) agents interact with the
+outside environment (Test target). This is represented with two-way _dotted_ arrows.
+
+___
+
+### Architecture
+
+As mentioned earlier, one of the charecteristique of the MASAPT system is for it to be somewhat _distributed_. One aspect of this has already been implemented seeing how all agents are implemented as
+independand programs, controlled by the main ([_masapt_](masapt)) script.
+
+**Img 3.** shows how the current system was setup and tested. It can be seen that agents use the SPADE
+environment to communicate over XMPP (ejabberd) server which is setup on the local system. Test target
+(SQLi Labs) is also setup on the local system. While good for testing, this approach does not scale
+well and is not very representative of the vision that the author has for this system.
+
 &nbsp;
 
 ![Img3](/readme_files/images/current.png) ![Img4](/readme_files/images/futureidea.png)
 
+&nbsp;
 
-Second image shows the same model as the first image but in greater detail. Agents can be
-clearly found in their respective tiers.
+**Img 4.** on the other hand shows the idea how MASAPT was intented to be. It shows a distributed multi-agent system
+that uses XMPP to communicate and Docker to run accross many different systems. _Full_ arrows once again show the
+communication and data flow aspect of the agents, showing how agents send and receive their data over a central XMPP server.
+
+#### Reason for XMPP
+
+Main reason for agents to communicate over XMPP is to provide a reliable, language-agnostic way for agents
+to communicate. With this approach, not all future agents have to be written in Python or even use the
+SPADE environment.
+
+Reasoning behind this is that there may be some use case for a different system to be part of MASAPT
+in the future (ex. agents written in other programming languages). So this 'XMPP approach' is the best way to provide that kind of flexibility to the system.
 
 ### Agent behaviour
 
@@ -200,15 +240,15 @@ Diagrams below show all possible states an agent can be in at any moment.
 in time. Diagrams also show what events cause agent to switch to the next state.
 ALL FUTURE AGENTS should be implemented in the same manner.
 
-All future exploit agents (ex. DoS, XSS...) should be implemented using the Img 8. diagram as template
+All future exploit agents (ex. DoS, XSS...) should be implemented using the **Img 8.** diagram as template
 
 &nbsp;
 
-![Img5](/readme_files/images/coordinator_fsm.png) ![Img6](/readme_files/images/explorer_fsm.png)
+![Img5](/readme_files/images/coordinator_fsm.png) &ensp; ![Img6](/readme_files/images/explorer_fsm.png)
 
 &nbsp;
 
-![Img7](/readme_files/images/reporter_fsm.png) ![Img8](/readme_files/images/exploit_fsm.png)
+![Img7](/readme_files/images/reporter_fsm.png) &ensp; ![Img8](/readme_files/images/exploit_fsm.png)
 
 &nbsp;
 
