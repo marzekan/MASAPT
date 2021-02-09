@@ -59,7 +59,7 @@ ___
 
 _Difficult_.
 
-#### Install requirements
+#### **Install requirements:**
 
 There's a fair number of prerequisites and requirements to install:
 
@@ -204,11 +204,11 @@ All future exploit agents (ex. DoS, XSS...) should be implemented using the Img 
 
 &nbsp;
 
-![Img5](/readme_files/images/coordinator_fsm.PNG) ![Img6](/readme_files/images/explorer_fsm.PNG)
+![Img5](/readme_files/images/coordinator_fsm.png) ![Img6](/readme_files/images/explorer_fsm.png)
 
 &nbsp;
 
-![Img7](/readme_files/images/reporter_fsm.PNG) ![Img8](/readme_files/images/exploit_fsm.PNG)
+![Img7](/readme_files/images/reporter_fsm.png) ![Img8](/readme_files/images/exploit_fsm.png)
 
 &nbsp;
 
