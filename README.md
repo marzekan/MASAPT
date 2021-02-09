@@ -1,4 +1,5 @@
 # MASAPT 🤖 ↔ &#129302; ↔ 🤖
+
 ___
 
 &nbsp;
@@ -7,16 +8,18 @@ _❗_ <span style="color:red">_Warning_</span>
 
 
 > This tool is developed for academic and research purposes as a part of the
-  _Multiagent systems_ course at _Faculty of organization and informatics_.
-  This tool is not to be used without consent of a second party whose security
+  _Multiagent systems_ course at _Faculty of Organization and Informatics, University of Zagreb_.
+  This tool is not to be used without consent of a party whose security
   is being tested.
 >
 > Author holds no responsibility for any damage made with this tool and
-  condemns any nefarious usage of the same.
+  condemns any nefarious usage of the same. This tool is not ment to be used in any professional
+  environment at this point, it is still just a _proof-of-concept_ for the underlying theoretical
+  model.
 
 ___
 
-## Welcome to...
+## **Welcome to...**
 
 _Multi-Agent System for Automated Penetration Testing_ 🐱‍💻
 
@@ -46,7 +49,7 @@ for automating the process of penetration testing in a structured and inteligent
 **The ultimate goal** is to make a working, flexible, distributed, CLI based - pentesting
 tool that can be used for automating penetration testing tasks.
 
-Currently implemented features:
+Current features:
 
 - Performing network scanning with __Nmap__
 - Performing basic SQL injection with __SQLMap__
@@ -71,7 +74,7 @@ There's a fair number of prerequisites and requirements to install:
 - Nmap (Already installed on Kali)
 
 Beside Python and pentesting tools that can be found on Kali, you also need
-access to some XMPP service. For testing the system I used **ejabberd**
+access to some XMPP service. For testing the system I used [**ejabberd**](https://www.ejabberd.im/)
 running locally.
 
 To run the agents on your XMPP server of choice, you will need to create
@@ -203,8 +206,8 @@ ___
 
 ### Architecture
 
-As mentioned earlier, one of the charecteristique of the MASAPT system is for it to be somewhat _distributed_. One aspect of this has already been implemented seeing how all agents are implemented as
-independand programs, controlled by the main ([_masapt_](masapt)) script.
+As mentioned earlier, one of the characteristics of the MASAPT system is for it to be somewhat _distributed_. One aspect of this has already been implemented seeing how all agents are implemented as
+independent programs, controlled by the main ([_masapt_](masapt)) script.
 
 **Img 3.** shows how the current system was setup and tested. It can be seen that agents use the SPADE
 environment to communicate over XMPP (ejabberd) server which is setup on the local system. Test target
@@ -213,13 +216,23 @@ well and is not very representative of the vision that the author has for this s
 
 &nbsp;
 
-![Img3](/readme_files/images/current.png) ![Img4](/readme_files/images/futureidea.png)
+<p align="center">    
+    <img src="readme_files/images/current.png">
+</p>
 
 &nbsp;
 
-**Img 4.** on the other hand shows the idea how MASAPT was intented to be. It shows a distributed multi-agent system
+**Img 4.** on the other hand, shows the idea how MASAPT was intented to be. It shows a distributed multi-agent system
 that uses XMPP to communicate and Docker to run accross many different systems. _Full_ arrows once again show the
-communication and data flow aspect of the agents, showing how agents send and receive their data over a central XMPP server.
+communication and data flow aspect of the system, showing how agents send and receive their data over a central XMPP server.
+
+&nbsp;
+
+<p align="center">    
+    <img src="readme_files/images/futureidea.png">
+</p>
+
+&nbsp;
 
 #### Reason for XMPP
 
@@ -236,15 +249,15 @@ Aside its ability to communicate, behaviour is the second most important aspect 
 MASAPT agents and their behaviour is modelled with a set of states, what makes them: __finite state automata__ or __finite state machines__. SPADE environment has good support for creating finite
 state machines.
 
-Diagrams below show all possible states an agent can be in at any moment.
-in time. Diagrams also show what events cause agent to switch to the next state.
+Diagrams below show all possible states an agent can be in at any moment
+in time. Diagrams also show which events cause agent to switch to the next state.
 ALL FUTURE AGENTS should be implemented in the same manner.
 
-All future exploit agents (ex. DoS, XSS...) should be implemented using the **Img 8.** diagram as template
+All future exploit agents (ex. DoS, XSS...) should be implemented using the **Img 8.** diagram as template.
 
 &nbsp;
 
-![Img5](/readme_files/images/coordinator_fsm.png) &ensp; ![Img6](/readme_files/images/explorer_fsm.png)
+![Img5](/readme_files/images/coordinator_fsm.png) ![Img6](/readme_files/images/explorer_fsm.png)
 
 &nbsp;
 
