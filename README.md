@@ -4,17 +4,15 @@ ___
 
 &nbsp;
 
-_❗_ <span style="color:red">_Warning_</span>
+_❗_ <span style="color:red">_Disclaimer_</span>
 
 
-> This tool is developed for academic and research purposes as a part of the
-  _Multiagent systems_ course at _Faculty of Organization and Informatics, University of Zagreb_.
-  This tool is not to be used without consent of a party whose security
-  is being tested.
+> This tool is developed for academic and research purposes as a part of the university course.
+  The use of MASAPT for attacking targets without prior consent is illegal.
 >
-> Author holds no responsibility for any damage made with this tool and
-  condemns any nefarious usage of the same. This tool is not ment to be used in any professional
-  environment at this point, it is still just a _proof-of-concept_ for the underlying theoretical
+> Developers hold no responsibility for any damage made with this tool and
+  condemn any nefarious usage of MASAPT. This tool is not ment to be used in any professional
+  environment at this point, it is just a _proof-of-concept_ for the underlying theoretical
   model.
 
 ___
@@ -165,7 +163,7 @@ that make up the system are independent of the main process, upgradeable and use
 pentesting tools.
 
 To achieve the goals envisioned, agents are developed as part of a **_three-tier model_** which is derived from
-standard pentest phases (_planning - execution - post execution_). A very high overview of the said model can be seen on **Img1** below.
+standard pentest phases (_planning - execution - post execution_). High overview of said model can be seen on **Img1** below.
 
 All theoretical concepts in this overview have already been implemented in code (apart from the idea for the future - **Img 8.**). These concepts should continue to be implemented in any future upgrades to the system.
 
@@ -206,13 +204,14 @@ ___
 
 ### Architecture
 
-As mentioned earlier, one of the characteristics of the MASAPT system is for it to be somewhat _distributed_. One aspect of this has already been implemented seeing how all agents are implemented as
-independent programs, controlled by the main ([_masapt_](masapt)) script.
+As mentioned earlier, one of the characteristics of the MASAPT system is for it to be distributed. One aspect of this has already been implemented seeing how all agents are implemented as
+independent programs, run by the main ([_masapt_](masapt)) script.
 
 **Img 3.** shows how the current system was setup and tested. It can be seen that agents use the SPADE
 environment to communicate over XMPP (ejabberd) server which is setup on the local system. Test target
-(SQLi Labs) is also setup on the local system. While good for testing, this approach does not scale
-well and is not very representative of the vision that the author has for this system.
+([SQLi Labs](https://github.com/Audi-1/sqli-labs)) is also setup on the local system. This setup is good
+for testing the system but it doesn't show full capability of MASAPT as a distributed system.
+
 
 &nbsp;
 
@@ -222,7 +221,7 @@ well and is not very representative of the vision that the author has for this s
 
 &nbsp;
 
-**Img 4.** on the other hand, shows the idea how MASAPT was intented to be. It shows a distributed multi-agent system
+**Img 4.** on the other hand, shows one possible future implementaion of MASAPT. It shows a distributed multi-agent system
 that uses XMPP to communicate and Docker to run accross many different systems. _Full_ arrows once again show the
 communication and data flow aspect of the system, showing how agents send and receive their data over a central XMPP server.
 
@@ -246,12 +245,12 @@ in the future (ex. agents written in other programming languages). So this 'XMPP
 ### Agent behaviour
 
 Aside its ability to communicate, behaviour is the second most important aspect of any agent.
-MASAPT agents and their behaviour is modelled with a set of states, what makes them: __finite state automata__ or __finite state machines__. SPADE environment has good support for creating finite
+MASAPT agents and their behaviour is modelled with a set of states, which makes them finite state machines. SPADE environment has good support for creating finite
 state machines.
 
 Diagrams below show all possible states an agent can be in at any moment
 in time. Diagrams also show which events cause agent to switch to the next state.
-ALL FUTURE AGENTS should be implemented in the same manner.
+All future agents should be implemented in the same manner.
 
 All future exploit agents (ex. DoS, XSS...) should be implemented using the **Img 8.** diagram as template.
 
